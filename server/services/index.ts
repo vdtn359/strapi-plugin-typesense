@@ -1,10 +1,10 @@
 import lifecycles from './lifecycles';
-import algolia from './algolia';
+import typesense from './typesense';
 import strapi from './strapi';
 import utils from './utils';
 
 export default {
-  algolia,
+  typesense,
   strapi,
   lifecycles,
   utils,

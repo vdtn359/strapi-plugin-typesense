@@ -5,7 +5,9 @@ export const validateConfig = (config: unknown) => {
     yup
       .object()
       .shape({
-        applicationId: yup.string().required(),
+        host: yup.string().required(),
+        port: yup.number().required(),
+        protocol: yup.string().required(),
         apiKey: yup.string().required(),
         indexPrefix: yup.string(),
         contentTypes: yup.array().of(
@@ -17,13 +19,14 @@ export const validateConfig = (config: unknown) => {
             populate: yup.object(),
             hideFields: yup.array().of(yup.string()),
             transformToBooleanFields: yup.array().of(yup.string()),
+            schema: yup.object(),
           })
         ),
       })
       .validateSync(config);
   } catch (error) {
     throw new Error(
-      `Algolia plugin configuration error: ${error.errors}`
+      `Typesense plugin configuration error: ${error.errors}`
     );
   }
 };

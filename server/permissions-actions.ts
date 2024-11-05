@@ -4,6 +4,6 @@ export const permissionsActions = [
     displayName: 'Index all',
     uid: 'index.index-all',
     subCategory: 'index',
-    pluginName: 'strapi-algolia',
+    pluginName: 'typesense',
   },
 ];

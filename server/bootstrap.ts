@@ -2,7 +2,7 @@ import { Strapi } from '@strapi/strapi';
 import { permissionsActions } from './permissions-actions';
 
 export default async ({ strapi }: { strapi: Strapi }) => {
-  const strapiAlgolia = strapi.plugin('strapi-algolia');
+  const strapiTypesense = strapi.plugin('typesense');
 
   try {
     await strapi.admin?.services.permission.actionProvider.registerMany(
@@ -10,15 +10,15 @@ export default async ({ strapi }: { strapi: Strapi }) => {
     );
   } catch (error) {
     strapi.log.error(
-      `'strapi-algolia' permissions bootstrap failed. ${error.message}`
+      `'typesense' permissions bootstrap failed. ${error.message}`
     );
   }
 
   try {
-    await strapiAlgolia.service('lifecycles').loadLifecycleMethods();
+    await strapiTypesense.service('lifecycles').loadLifecycleMethods();
   } catch (error) {
     strapi.log.error(
-      `'strapi-algolia' plugin bootstrap lifecycles failed. ${error.message}`
+      `'typesense' plugin bootstrap lifecycles failed. ${error.message}`
     );
   }
 };

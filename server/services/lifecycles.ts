@@ -1,28 +1,28 @@
 import { Strapi } from '@strapi/strapi';
-import { StrapiAlgoliaConfig } from '../../utils/config';
+import { StrapiTypesenseConfig } from '../../utils/config';
 
 export default ({ strapi }: { strapi: Strapi }) => ({
   async loadLifecycleMethods() {
     const {
       indexPrefix = '',
       contentTypes,
-      applicationId,
+      nodes,
       apiKey,
     } = strapi.config.get(
-      'plugin.strapi-algolia'
-    ) as StrapiAlgoliaConfig;
+      'plugin.strapi-typesense',
+    ) as StrapiTypesenseConfig;
 
     if (!contentTypes) {
       return;
     }
 
-    const strapiAlgolia = strapi.plugin('strapi-algolia');
-    const algoliaService = strapiAlgolia.service('algolia');
-    const strapiService = strapiAlgolia.service('strapi');
+    const strapiTypesense = strapi.plugin('strapi-typesense');
+    const typesenseService = strapiTypesense.service('typesense');
+    const strapiService = strapiTypesense.service('strapi');
 
-    const client = await algoliaService.getAlgoliaClient(
-      applicationId,
-      apiKey
+    const client = await typesenseService.getTypesenseClient(
+      nodes,
+      apiKey,
     );
 
     for (const contentType of contentTypes) {
@@ -48,7 +48,7 @@ export default ({ strapi }: { strapi: Strapi }) => ({
               transformToBooleanFields,
               idPrefix,
               client,
-              indexName
+              indexName,
             );
           },
           afterUpdate: async (event) => {
@@ -59,7 +59,7 @@ export default ({ strapi }: { strapi: Strapi }) => ({
               transformToBooleanFields,
               idPrefix,
               client,
-              indexName
+              indexName,
             );
           },
           afterDelete: async (event) => {
@@ -68,7 +68,7 @@ export default ({ strapi }: { strapi: Strapi }) => ({
               idPrefix,
               client,
               indexName,
-              false
+              false,
             );
           },
           afterDeleteMany: async (event) => {
@@ -77,7 +77,7 @@ export default ({ strapi }: { strapi: Strapi }) => ({
               idPrefix,
               client,
               indexName,
-              true
+              true,
             );
           },
         });

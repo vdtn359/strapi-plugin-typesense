@@ -1,6 +1,6 @@
 import { Strapi } from '@strapi/strapi';
 import Koa from 'koa';
-import { StrapiAlgoliaConfig } from '../../utils/config';
+import { StrapiTypesenseConfig } from '../../utils/config';
 
 export default ({ strapi }: { strapi: Strapi }) => ({
   async index(
@@ -9,30 +9,30 @@ export default ({ strapi }: { strapi: Strapi }) => ({
         body?: unknown;
         rawBody: string;
       };
-    }
+    },
   ) {
     const {
       indexPrefix = '',
       contentTypes,
-      applicationId,
       apiKey,
+      nodes,
     } = strapi.config.get(
-      'plugin.strapi-algolia'
-    ) as StrapiAlgoliaConfig;
+      'plugin.strapi-typesense',
+    ) as StrapiTypesenseConfig;
 
     if (!contentTypes) {
       return;
     }
 
-    const strapiAlgolia = strapi.plugin('strapi-algolia');
-    const algoliaService = strapiAlgolia.service('algolia');
-    const strapiService = strapiAlgolia.service('strapi');
-    const utilsService = strapiAlgolia.service('utils');
+    const strapiTypesense = strapi.plugin('strapi-typesense');
+    const typesenseService = strapiTypesense.service('typesense');
+    const strapiService = strapiTypesense.service('strapi');
+    const utilsService = strapiTypesense.service('utils');
 
-    const client = await algoliaService.getAlgoliaClient(
-      applicationId,
-      apiKey
-    );
+    const client = await typesenseService.getTypesenseClient({
+      nodes,
+      apiKey,
+    });
     const body = ctx.request.body as any;
 
     if (!body.name) {
@@ -40,13 +40,13 @@ export default ({ strapi }: { strapi: Strapi }) => ({
     }
 
     const contentType = contentTypes.find(
-      (contentType) => contentType.name === body.name
+      (contentType) => contentType.name === body.name,
     );
 
     if (!contentType) {
       return ctx.throw(
         400,
-        `Content type not found in config with ${body.name}`
+        `Content type not found in config with ${body.name}`,
       );
     }
 
@@ -64,22 +64,22 @@ export default ({ strapi }: { strapi: Strapi }) => ({
     const allLocales =
       await strapi.plugins?.i18n?.services?.locales?.find();
     const localeFilter = allLocales?.map(
-      (locale: any) => locale.code
+      (locale: any) => locale.code,
     );
     const findManyBaseOptions = { populate };
     const findManyOptions = localeFilter
       ? {
-          ...findManyBaseOptions,
-          locale: localeFilter,
-        }
+        ...findManyBaseOptions,
+        locale: localeFilter,
+      }
       : { ...findManyBaseOptions };
 
     const articlesStrapi = await strapi.entityService?.findMany(
       name as any,
-      findManyOptions
+      findManyOptions,
     );
     const articles = (articlesStrapi ?? []).map((article: any) =>
-      utilsService.filterProperties(article, hideFields)
+      utilsService.filterProperties(article, hideFields),
     );
 
     await strapiService.afterUpdateAndCreateAlreadyPopulate(
@@ -87,7 +87,7 @@ export default ({ strapi }: { strapi: Strapi }) => ({
       idPrefix,
       client,
       indexName,
-      transformToBooleanFields
+      transformToBooleanFields,
     );
 
     return ctx.send({

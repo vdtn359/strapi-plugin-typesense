@@ -1,6 +1,6 @@
 import { Strapi } from '@strapi/strapi';
 import Koa from 'koa';
-import { StrapiAlgoliaConfig } from '../../utils/config';
+import { StrapiTypesenseConfig } from '../../utils/config';
 
 export default ({ strapi }: { strapi: Strapi }) => ({
   async contentTypes(
@@ -12,8 +12,8 @@ export default ({ strapi }: { strapi: Strapi }) => ({
     }
   ) {
     const { contentTypes } = strapi.config.get(
-      'plugin.strapi-algolia'
-    ) as StrapiAlgoliaConfig;
+      'plugin.strapi-typesense'
+    ) as StrapiTypesenseConfig;
 
     if (!contentTypes) {
       return;

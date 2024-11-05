@@ -1,5 +1,5 @@
 import { Common, Strapi } from '@strapi/strapi';
-import { algoliasearch } from 'algoliasearch';
+import { Client } from 'typesense';
 import { HookEvent } from '../../utils/event';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -7,10 +7,10 @@ export default ({ strapi }: { strapi: Strapi }) => ({
   getStrapiObject: async (
     event: HookEvent,
     populate: any,
-    hideFields: string[]
+    hideFields: string[],
   ) => {
-    const strapiAlgolia = strapi.plugin('strapi-algolia');
-    const utilsService = strapiAlgolia.service('utils');
+    const strapiTypesense = strapi.plugin('typesense');
+    const utilsService = strapiTypesense.service('utils');
 
     const { model } = event;
     const modelUid = model.uid as Common.UID.ContentType;
@@ -23,12 +23,12 @@ export default ({ strapi }: { strapi: Strapi }) => ({
     const strapiObject = await strapi.entityService?.findOne(
       modelUid,
       entryId,
-      { populate }
+      { populate },
     );
 
     if (!strapiObject) {
       throw new Error(
-        `No entry found for ${modelUid} with ID ${entryId}`
+        `No entry found for ${modelUid} with ID ${entryId}`,
       );
     }
 
@@ -40,13 +40,13 @@ export default ({ strapi }: { strapi: Strapi }) => ({
     hideFields: string[],
     transformToBooleanFields: string[],
     idPrefix: string,
-    algoliaClient: ReturnType<typeof algoliasearch>,
-    indexName: string
+    typesenseClient: Client,
+    indexName: string,
   ) => {
-    const strapiAlgolia = strapi.plugin('strapi-algolia');
-    const algoliaService = strapiAlgolia.service('algolia');
-    const strapiService = strapiAlgolia.service('strapi');
-    const utilsService = strapiAlgolia.service('utils');
+    const strapiTypesense = strapi.plugin('typesense');
+    const typesenseService = strapiTypesense.service('typesense');
+    const strapiService = strapiTypesense.service('strapi');
+    const utilsService = strapiTypesense.service('utils');
 
     const objectsToSave: any[] = [];
     const objectsIdsToDelete: string[] = [];
@@ -55,12 +55,12 @@ export default ({ strapi }: { strapi: Strapi }) => ({
     for (const event of events) {
       try {
         const entryId = `${idPrefix}${utilsService.getEntryId(
-          event
+          event,
         )}`;
         const strapiObject = await strapiService.getStrapiObject(
           event,
           populate,
-          hideFields
+          hideFields,
         );
 
         if (strapiObject.publishedAt === null) {
@@ -73,30 +73,30 @@ export default ({ strapi }: { strapi: Strapi }) => ({
         }
       } catch (error) {
         console.error(
-          `Error while updating Algolia index: ${JSON.stringify(
-            error
-          )}`
+          `Error while updating Typesense index: ${JSON.stringify(
+            error,
+          )}`,
         );
       }
     }
 
-    await algoliaService.createOrDeleteObjects(
+    await typesenseService.createOrDeleteObjects(
       objectsToSave,
       objectsIdsToDelete,
-      algoliaClient,
+      typesenseClient,
       indexName,
-      transformToBooleanFields
+      transformToBooleanFields,
     );
   },
   afterUpdateAndCreateAlreadyPopulate: async (
     articles: any[],
     idPrefix: string,
-    algoliaClient: ReturnType<typeof algoliasearch>,
+    typesenseClient: Client,
     indexName: string,
-    transformToBooleanFields: string[] = []
+    transformToBooleanFields: string[] = [],
   ) => {
-    const strapiAlgolia = strapi.plugin('strapi-algolia');
-    const algoliaService = strapiAlgolia.service('algolia');
+    const strapiTypesense = strapi.plugin('typesense');
+    const typesenseService = strapiTypesense.service('typesense');
 
     const objectsToSave: any[] = [];
     const objectsIdsToDelete: string[] = [];
@@ -116,41 +116,43 @@ export default ({ strapi }: { strapi: Strapi }) => ({
         }
       } catch (error) {
         console.error(
-          `Error while updating Algolia index: ${JSON.stringify(
-            error
-          )}`
+          `Error while updating Typesense index: ${JSON.stringify(
+            error,
+          )}`,
         );
       }
     }
 
-    await algoliaService.createOrDeleteObjects(
+    await typesenseService.createOrDeleteObjects(
       objectsToSave,
       objectsIdsToDelete,
-      algoliaClient,
+      typesenseClient,
       indexName,
-      transformToBooleanFields
+      transformToBooleanFields,
     );
   },
   afterDeleteOneOrMany: async (
     _event: any,
     idPrefix: string,
-    algoliaClient: ReturnType<typeof algoliasearch>,
+    typesenseClient: Client,
     indexName: string,
-    many: boolean
+    many: boolean,
   ) => {
     try {
+      const strapiTypesense = strapi.plugin('typesense');
+      const typesenseService = strapiTypesense.service('typesense');
       const event = _event as HookEvent;
       const strapiIds = many
         ? event?.params?.where?.['$and'][0]?.id['$in']
         : [event.params.where.id];
       const objectIDs = strapiIds.map(
-        (id: string) => `${idPrefix}${id}`
+        (id: string) => `${idPrefix}${id}`,
       );
 
-      await algoliaClient.deleteObjects({ indexName, objectIDs });
+      await typesenseService.deleteObjects(typesenseClient, indexName, objectIDs);
     } catch (error) {
       console.error(
-        `Error while deleting object(s) from Algolia index: ${error}`
+        `Error while deleting object(s) from Typesense index: ${error}`,
       );
     }
   },

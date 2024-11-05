@@ -1,26 +1,17 @@
 {
-  "name": "strapi-plugin-strapi-algolia",
+  "name": "strapi-plugin-typesense",
   "version": "1.8.0",
-  "description": "Index articles configured to Algolia",
+  "description": "Index articles configured to Typesense",
   "keywords": [
     "strapi",
     "plugin",
-    "algolia"
+    "typesense"
   ],
-  "homepage": "https://market.strapi.io/plugins/strapi-plugin-strapi-algolia",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/wizbii/strapi-algolia.git"
+    "url": "git+https://github.com/vdtn359/strapi-plugin-typesense.git"
   },
   "license": "MIT",
-  "author": {
-    "name": "Wizbii"
-  },
-  "maintainers": [
-    {
-      "name": "Wizbii"
-    }
-  ],
   "files": [
     "admin/**/*.ts",
     "admin/**/*.js",
@@ -47,7 +38,7 @@
     "@strapi/admin": "^4.25.8",
     "@strapi/strapi": "^4.25.1",
     "@strapi/utils": "^4.25.8",
-    "algoliasearch": "5.1.1",
+    "typesense": "^1.8.2",
     "deep-reduce": "^1.0.5",
     "prop-types": "^15.8.1"
   },
@@ -88,8 +79,8 @@
     "npm": ">=6.0.0"
   },
   "strapi": {
-    "name": "strapi-algolia",
-    "description": "Index articles configured to Algolia",
+    "name": "strapi-typesense",
+    "description": "Index articles configured to Typesense",
     "kind": "plugin",
     "icon": "plug"
   }

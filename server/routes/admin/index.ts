@@ -4,7 +4,7 @@ export default {
     {
       method: 'POST',
       path: '/index-all-articles',
-      handler: 'strapi-algolia-index-articles.index',
+      handler: 'strapi-typesense-index-articles.index',
       config: {
         policies: ['admin::isAuthenticatedAdmin'],
       },
@@ -12,7 +12,7 @@ export default {
     {
       method: 'GET',
       path: '/config/content-types',
-      handler: 'strapi-algolia-config.contentTypes',
+      handler: 'strapi-typesense-config.contentTypes',
       config: {
         policies: ['admin::isAuthenticatedAdmin'],
       },
